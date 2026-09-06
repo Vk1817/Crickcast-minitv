@@ -9,6 +9,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>CRICKCAST</title>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shaka-player@4.16.2/dist/controls.css">
 <script src="https://cdn.jsdelivr.net/npm/shaka-player@4.16.2/dist/shaka-player.ui.min.js"></script>
 
@@ -81,65 +84,28 @@ video{width:100%;height:100%;object-fit:contain;background:#000}
 video.fill{object-fit:fill}
 video.cover{object-fit:cover}
 
-#watermark{
-position:fixed;z-index:9996;
-left:18px;top:max(26px,calc(env(safe-area-inset-top) + 18px));
-height:45px;width:289px;
-display:none;align-items:center;
-padding:0 14px 0 8px;
-border:1px solid rgba(30,210,158,.62);
-border-radius:24px;
-background:linear-gradient(90deg,rgba(5,18,16,.97) 0%,rgba(10,25,22,.96) 62%,rgba(14,30,27,.94) 100%);
-box-shadow:0 2px 10px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.045);
-pointer-events:none;white-space:nowrap;
-backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)
-}
-#watermark .wm-shield{
-width:31px;height:31px;flex:0 0 31px;
-border-radius:8px;
-background:linear-gradient(145deg,#f7faf9,#d7e1de);
-display:flex;align-items:center;justify-content:center;
-box-shadow:0 1px 4px rgba(0,0,0,.32);
-position:relative;overflow:hidden
-}
-#watermark .wm-shield:before{
-content:"";position:absolute;
-width:17px;height:20px;
-background:linear-gradient(160deg,#35d6aa 0%,#159f7d 58%,#08725f 100%);
-clip-path:polygon(50% 0,92% 13%,87% 67%,50% 100%,13% 67%,8% 13%);
-}
-#watermark .wm-shield:after{
-content:"";position:absolute;
-width:8px;height:4px;
-border-left:2px solid #eafff8;border-bottom:2px solid #eafff8;
-transform:rotate(-45deg) translate(1px,-1px);
-top:12px;left:11px
-}
-#watermark .wm-name{
-font-family:Arial,Helvetica,sans-serif;
-font-size:18px;font-weight:900;
-letter-spacing:2.05px;color:#f5f7f6;
-line-height:1;margin-left:9px
-}
-#watermark .wm-name span{color:#18d29d}
-#watermark .wm-divider{
-width:1px;height:23px;
-background:rgba(235,245,242,.30);
-margin-left:14px;margin-right:14px
-}
-#watermark .wm-live{
-display:flex;align-items:center;
-gap:7px;
-font-family:Arial,Helvetica,sans-serif;
-font-size:15px;font-weight:800;
-letter-spacing:1px;color:#ff777d;
-line-height:1
-}
-#watermark .wm-live-dot{
-width:8px;height:8px;flex:0 0 8px;
-border-radius:50%;background:#ff4e5b;
-box-shadow:0 0 7px rgba(255,78,91,.62)
-}
+#watermark{position:fixed;z-index:9996;
+top:max(14px,env(safe-area-inset-top));left:max(14px,env(safe-area-inset-left));
+display:none;align-items:center;gap:8px;
+padding:6px 13px 6px 8px;border-radius:999px;
+background:linear-gradient(135deg,rgba(9,14,11,.62),rgba(6,20,15,.5));
+border:1px solid rgba(52,211,153,.28);
+backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+pointer-events:none;user-select:none;
+box-shadow:0 4px 16px rgba(0,0,0,.4),inset 0 0 10px rgba(16,185,129,.08)}
+#watermark .dot{width:16px;height:16px;border-radius:5px;flex-shrink:0;
+background:url('https://static.prod-images.emergentagent.com/jobs/7bfb4c42-cb80-4f32-9490-b18d877f39ab/images/b60e4a7466678c4f7f8c397b60de8575ae36f2eae18042e66415b7de63c04d2e.jpeg') center/contain no-repeat;
+filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))}
+#watermark>span{color:#fff;font-family:'Archivo',Arial,sans-serif;font-size:12px;font-weight:900;letter-spacing:1.6px}
+#watermark .accent{color:#34d399}
+#watermark .wm-live{display:inline-flex;align-items:center;gap:4px;margin-left:2px;
+padding-left:9px;border-left:1px solid rgba(255,255,255,.14)}
+#watermark .wm-live::before{content:"";width:6px;height:6px;border-radius:50%;background:#ff5252;
+box-shadow:0 0 6px #ff5252;animation:cc-wm-pulse 1.5s ease-in-out infinite}
+#watermark .wm-live b{font-family:'Archivo',Arial,sans-serif;font-size:9px;font-weight:800;letter-spacing:1px;color:#ff8a8a}
+@keyframes cc-wm-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.82)}}
+#watermark.faded{opacity:0;transition:opacity .4s}
+#watermark.visible{opacity:1;transition:opacity .25s}
 
 #topWatermark{display:none}
 
@@ -210,11 +176,10 @@ padding:9px 14px;border-radius:22px;font-size:11px;font-weight:700;cursor:pointe
   <video id="video" playsinline webkit-playsinline preload="none"></video>
 </div>
 
-<div id="watermark">
-  <span class="wm-shield"></span>
-  <span class="wm-name">CRICK<span>CAST</span></span>
-  <span class="wm-divider"></span>
-  <span class="wm-live"><span class="wm-live-dot"></span>LIVE</span>
+<div id="watermark" class="visible">
+  <span class="dot"></span>
+  <span>CRICK<span class="accent">CAST</span></span>
+  <span class="wm-live"><b>LIVE</b></span>
 </div>
 <div id="topWatermark"></div>
 <button id="backBtn">← Channels</button>
@@ -479,7 +444,7 @@ function showList() {
 function showPlayer() {
   list.style.display = "none";
   playerBox.style.display = "flex";
-  watermark.style.display = "block";
+  watermark.style.display = "flex";
   topWatermark.style.display = "block";
   backBtn.style.display = "block";
 }
