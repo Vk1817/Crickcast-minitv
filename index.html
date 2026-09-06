@@ -221,6 +221,7 @@ let query = "";
 let shakaPlayer = null;
 let currentChannel = null;
 let refreshTimer = null;
+let streamRefreshTimer = null;
 let statusTimer = null;
 let refreshingStream = false;
 
@@ -614,25 +615,20 @@ function handleWaiting() {
   }, 5000);
 }
 
-async function reloadCurrentChannel() {
+async function reloadCurrentChannel(freshChannels=null) {
   if(!currentChannel || refreshingStream) return;
-
   refreshingStream = true;
-  toast("Refreshing stream…", "warn", 0);
-
+  toast("Updating live stream…", "warn", 0);
   try {
-    const freshChannels = await fetchChannels();
-    const fresh = freshChannels.find(c => c.id === currentChannel.id);
-
+    const channels = freshChannels || await fetchChannels();
+    const fresh = channels.find(c => c.id === currentChannel.id);
     if(!fresh) throw new Error("Channel no longer exists");
-
-    allChannels = freshChannels;
+    allChannels = channels;
     currentChannel = fresh;
-
     await startPlayer(fresh);
   } catch(e) {
     console.error(e);
-    toast("Unable to refresh stream", "err", 3500);
+    toast("Unable to update live stream", "err", 3500);
   } finally {
     refreshingStream = false;
   }
@@ -665,9 +661,34 @@ async function refreshChannelData(silent=true) {
   }
 }
 
+function channelStreamSignature(ch) {
+  if(!ch) return "";
+  return [ch.stream_url || "", ch.cookie || "", ch.key_id || "", ch.key || "", ch.user_agent || ""].join("\n");
+}
+
+async function refreshCurrentLiveStream(freshChannels) {
+  if(!currentChannel || !shakaPlayer || refreshingStream) return;
+  const fresh = freshChannels.find(c => c.id === currentChannel.id);
+  if(!fresh) return;
+  if(channelStreamSignature(currentChannel) === channelStreamSignature(fresh)) return;
+  currentChannel = fresh;
+  await reloadCurrentChannel(freshChannels);
+}
+
 function startAutoRefresh() {
   clearInterval(refreshTimer);
+  clearInterval(streamRefreshTimer);
   refreshTimer = setInterval(() => refreshChannelData(true), AUTO_REFRESH_MS);
+  streamRefreshTimer = setInterval(async () => {
+    if(document.hidden || !currentChannel || !shakaPlayer || refreshingStream) return;
+    try {
+      const freshChannels = await fetchChannels();
+      allChannels = freshChannels;
+      renderCategories();
+      applyFilters();
+      await refreshCurrentLiveStream(freshChannels);
+    } catch(e) { console.warn("Live stream refresh failed:", e); }
+  }, 60 * 1000);
 }
 
 /* ---------- Search ---------- */
