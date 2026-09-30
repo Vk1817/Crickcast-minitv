@@ -10,6 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Manrope:wght@400;500;600;700;800&display=swap">
+<script src="https://pl31467926.profitableratecpmnetwork.com/4e/25/e4/4e25e45556a54a50d1c66d2d232b2c61.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:100%;height:100%;background:#070b09;overflow:hidden;font-family:'Manrope',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-font-smoothing:antialiased}
@@ -64,85 +65,36 @@ html,body{width:100%;height:100%;background:#070b09;overflow:hidden;font-family:
 const SOURCE='https://sonujson-v5.pages.dev/loura.json';
 const $=id=>document.getElementById(id);
 let channels=[],activeCategory='All',query='';
-
 function escapeHtml(v){return String(v).replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]))}
-
 function normalize(data){
   const arr=data && Array.isArray(data.iframes) ? data.iframes : [];
-  return arr.filter(x=>x && x.id && x.name && x.iframeSrc).map(x=>({
-    id:String(x.id),name:String(x.name),iframeSrc:String(x.iframeSrc),
-    category:String(x.category||'General'),logo:String(x.logourl||'')
-  }));
+  return arr.filter(x=>x && x.id && x.name && x.iframeSrc).map(x=>({id:String(x.id),name:String(x.name),iframeSrc:String(x.iframeSrc),category:String(x.category||'General'),logo:String(x.logourl||'')}));
 }
-
 async function loadData(){
   const r=await fetch(SOURCE,{cache:'no-store',headers:{Accept:'application/json'}});
   if(!r.ok) throw new Error('HTTP '+r.status);
-  const data=await r.json();
-  const out=normalize(data);
-  if(!out.length) throw new Error('No valid channels in loura.json');
-  return out;
+  const data=await r.json();const out=normalize(data);
+  if(!out.length) throw new Error('No valid channels in loura.json');return out;
 }
-
 function renderFilters(){
-  const cats=['All',...Array.from(new Set(channels.map(c=>c.category).filter(c=>c && c!=='General'))).sort()];
+  const cats=['All',...Array.from(new Set(channels.map(c=>c.category).filter(c=>c&&c!=='General'))).sort()];
   $('filters').innerHTML=cats.map(c=>'<button class="pill '+(c===activeCategory?'active':'')+'" data-cat="'+escapeHtml(c)+'">'+escapeHtml(c)+'</button>').join('');
   $('filters').querySelectorAll('.pill').forEach(btn=>btn.addEventListener('click',()=>{activeCategory=btn.dataset.cat;renderFilters();render()}));
 }
-
 function render(){
-  const q=query.trim().toLowerCase();
-  const filtered=channels.filter(c=>(activeCategory==='All'||c.category===activeCategory)&&(!q||c.name.toLowerCase().includes(q)));
-  $('count').textContent=filtered.length+' channels';
-  $('no-results').style.display=filtered.length?'none':'block';
-  $('grid').style.display=filtered.length?'grid':'none';
+  const q=query.trim().toLowerCase();const filtered=channels.filter(c=>(activeCategory==='All'||c.category===activeCategory)&&(!q||c.name.toLowerCase().includes(q)));
+  $('count').textContent=filtered.length+' channels';$('no-results').style.display=filtered.length?'none':'block';$('grid').style.display=filtered.length?'grid':'none';
   $('grid').innerHTML=filtered.map(c=>'<article class="card" data-id="'+escapeHtml(c.id)+'"><div class="poster">'+(c.logo?'<img src="'+escapeHtml(c.logo)+'" alt="'+escapeHtml(c.name)+'" loading="lazy">':'')+'</div><div class="info"><div class="name">'+escapeHtml(c.name)+'</div>'+(c.category&&c.category!=='General'?'<div class="cat">'+escapeHtml(c.category)+'</div>':'')+'</div></article>').join('');
   $('grid').querySelectorAll('.card').forEach(card=>card.addEventListener('click',()=>{const ch=channels.find(c=>c.id===card.dataset.id);if(ch)openPlayer(ch)}));
 }
-
-function openPlayer(ch){
-  const url=new URL(location.href);
-  url.searchParams.set('id',ch.id);
-  history.pushState({id:ch.id},'',url);
-  $('playerTitle').textContent=ch.name;
-  $('frame').src=ch.iframeSrc;
-  $('channel-list').style.display='none';
-  $('player').style.display='block';
-  document.title='CRICKCAST · '+ch.name;
-}
-function closePlayer(push=true){
-  $('frame').src='about:blank';
-  $('player').style.display='none';
-  $('channel-list').style.display='flex';
-  document.title='CRICKCAST';
-  if(push){history.pushState({},'',location.pathname)}
-}
-function route(){
-  const id=new URLSearchParams(location.search).get('id');
-  if(id){
-    const ch=channels.find(c=>c.id===id);
-    if(ch) openPlayer(ch); else closePlayer(false);
-  }else closePlayer(false);
-}
-
+function openPlayer(ch){const url=new URL(location.href);url.searchParams.set('id',ch.id);history.pushState({id:ch.id},'',url);$('playerTitle').textContent=ch.name;$('frame').src=ch.iframeSrc;$('channel-list').style.display='none';$('player').style.display='block';document.title='CRICKCAST · '+ch.name}
+function closePlayer(push=true){$('frame').src='about:blank';$('player').style.display='none';$('channel-list').style.display='flex';document.title='CRICKCAST';if(push)history.pushState({},'',location.pathname)}
+function route(){const id=new URLSearchParams(location.search).get('id');if(id){const ch=channels.find(c=>c.id===id);if(ch)openPlayer(ch);else closePlayer(false)}else closePlayer(false)}
 $('search').addEventListener('input',e=>{query=e.target.value;$('clear').classList.toggle('show',!!query);render()});
-$('clear').addEventListener('click',()=>{$('search').value='';query='';$('clear').classList.remove('show');render();$('search').focus()});
-$('search').addEventListener('keydown',e=>{if(e.key==='Escape')$('clear').click()});
-$('back').addEventListener('click',()=>closePlayer(true));
-window.addEventListener('popstate',route);
-
-(async function(){
-  try{
-    channels=await loadData();
-    renderFilters();render();
-    $('overlay').style.display='none';
-    $('channel-list').style.display='flex';
-    route();
-  }catch(e){
-    $('loadMsg').innerHTML='<div class="err"><b>Unable to load channels</b>'+escapeHtml(e.message)+'</div>';
-  }
-})();
+$('clear').addEventListener('click',()=>{$('search').value='';query='';$('clear').classList.remove('show');render();$('search').focus()});$('search').addEventListener('keydown',e=>{if(e.key==='Escape')$('clear').click()});$('back').addEventListener('click',()=>closePlayer(true));window.addEventListener('popstate',route);
+(async function(){try{channels=await loadData();renderFilters();render();$('overlay').style.display='none';$('channel-list').style.display='flex';route()}catch(e){$('loadMsg').innerHTML='<div class="err"><b>Unable to load channels</b>'+escapeHtml(e.message)+'</div>'}})();
 })();
 </script>
+<script src="https://pl31467927.profitableratecpmnetwork.com/f5/ea/dd/f5eadd2d3e0fe1f26f2b1d6c0b7f9167.js"></script>
 </body>
 </html>
