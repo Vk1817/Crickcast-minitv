@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>CRICKCAST</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Manrope:wght@400;500;600;700;800&display=swap">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;background:#070b09;overflow:hidden;font-family:'Manrope',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-font-smoothing:antialiased}
+:root{--a:#10b981;--a2:#34d399;--bg:#070b09;--panel:#0e1512;--panel2:#121b16;--border:#1b2621;--border2:#26332c;--text:#e8efeb;--muted:#7f8f86;--live:#ff5252}
+#overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;background:radial-gradient(120% 90% at 50% 8%,rgba(16,185,129,.14),transparent 60%),linear-gradient(180deg,#070b09,#050806 40%,#070b09)}
+.loader{width:52px;height:52px;border:3px solid rgba(255,255,255,.06);border-top-color:var(--a);border-right-color:var(--a2);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loadMsg{color:var(--muted);font-size:13px;font-weight:600;letter-spacing:.5px;text-align:center;padding:0 20px}
+#channel-list{position:fixed;inset:0;z-index:2;display:none;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 0 max(40px,env(safe-area-inset-bottom));background:var(--bg)}
+.header{display:flex;align-items:center;gap:14px;padding:max(20px,env(safe-area-inset-top)) clamp(16px,4vw,44px) 18px;border-bottom:1px solid var(--border)}
+.brand{font-family:'Archivo';font-weight:900;font-size:22px;letter-spacing:2.5px;color:#fff}.brand span{color:var(--a2)}
+.badge{font-size:10px;font-weight:800;letter-spacing:1px;color:#ff8080;border:1px solid rgba(255,82,82,.3);background:rgba(255,82,82,.08);padding:4px 9px;border-radius:99px}
+.count{margin-left:auto;color:var(--muted);font-size:11px}
+#search-wrap{position:relative;margin:14px 16px 8px}#search{width:100%;padding:11px 40px 11px 40px;background:#111;border:1px solid #1a1a1a;border-radius:10px;color:#eee;outline:none}#search:focus{border-color:var(--a)}
+#search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#666}.clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:0;color:#777;display:none;cursor:pointer}.clear.show{display:block}
+#filters{display:flex;gap:8px;overflow-x:auto;padding:8px 16px 12px;border-bottom:1px solid rgba(255,255,255,.03);scrollbar-width:none}#filters::-webkit-scrollbar{display:none}
+.pill{flex:0 0 auto;padding:6px 14px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;cursor:pointer;background:#111;color:#666;border:1px solid #1a1a1a}.pill.active{background:linear-gradient(135deg,#10b981,#34d399);color:#04130d;border-color:transparent}
+#grid-wrap{flex:1;overflow:auto;padding-top:12px}#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;padding:0 clamp(16px,4vw,44px)}
+.card{position:relative;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--border);border-radius:16px;overflow:hidden;cursor:pointer;transition:.25s;box-shadow:0 2px 10px rgba(0,0,0,.25)}.card:hover{transform:translateY(-4px);border-color:rgba(52,211,153,.45);box-shadow:0 16px 36px rgba(0,0,0,.45)}
+.poster{position:relative;width:100%;aspect-ratio:16/9;background:#121b16;overflow:hidden;display:flex;align-items:center;justify-content:center}.poster img{width:100%;height:100%;object-fit:cover;transition:transform .45s}.card:hover .poster img{transform:scale(1.06)}
+.poster::after{content:'▶';position:absolute;inset:0;display:grid;place-items:center;font-size:28px;color:var(--a2);background:linear-gradient(180deg,transparent,rgba(0,0,0,.5))}
+.info{padding:12px 13px 14px}.name{color:var(--text);font-size:13px;font-weight:700;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.cat{color:var(--muted);font-size:9px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;margin-top:7px}
+#no-results{display:none;color:#666;text-align:center;padding:60px 20px;font-size:14px}
+#player{position:fixed;inset:0;z-index:5;display:none;background:#000}
+#frame{width:100%;height:100%;border:0;background:#000}
+.playerbar{position:fixed;z-index:10;top:max(10px,env(safe-area-inset-top));left:12px;right:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;pointer-events:none}
+.playerbar button{pointer-events:auto;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.68);backdrop-filter:blur(8px);color:#fff;border-radius:9px;padding:9px 12px;cursor:pointer}
+.player-title{max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#fff;font-size:12px;background:rgba(0,0,0,.68);padding:9px 12px;border-radius:9px}
+.err{max-width:520px;text-align:center;color:#777}.err b{display:block;color:#f87171;margin-bottom:8px}
+@media(max-width:520px){#grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.info{padding:9px}.name{font-size:11px}.brand{font-size:19px}}
+@media(min-width:768px){#grid{grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:18px}}
+</style>
+</head>
+<body>
+<div id="overlay"><div class="loader"></div><div id="loadMsg">Fetching channels…</div></div>
+
+<section id="channel-list">
+  <div class="header"><div class="brand">CRICK<span>CAST</span></div><span class="badge">LIVE</span><span class="count" id="count">0 channels</span></div>
+  <div id="search-wrap"><span id="search-icon">🔍</span><input id="search" type="search" placeholder="Search channels…" autocomplete="off"><button class="clear" id="clear" aria-label="Clear">✕</button></div>
+  <div id="filters"></div>
+  <div id="grid-wrap"><div id="grid"></div><div id="no-results">📺<br><br>No channels found.</div></div>
+</section>
+
+<section id="player">
+  <div class="playerbar"><button id="back">← Channels</button><div class="player-title" id="playerTitle"></div></div>
+  <iframe id="frame" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen referrerpolicy="no-referrer"></iframe>
+</section>
+
+<script>
+(function(){
+'use strict';
+const SOURCE='https://sonujson-v5.pages.dev/loura.json';
+const $=id=>document.getElementById(id);
+let channels=[],activeCategory='All',query='';
+
+function escapeHtml(v){return String(v).replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]))}
+
+function normalize(data){
+  const arr=data && Array.isArray(data.iframes) ? data.iframes : [];
+  return arr.filter(x=>x && x.id && x.name && x.iframeSrc).map(x=>({
+    id:String(x.id),name:String(x.name),iframeSrc:String(x.iframeSrc),
+    category:String(x.category||'General'),logo:String(x.logourl||'')
+  }));
+}
+
+async function loadData(){
+  const r=await fetch(SOURCE,{cache:'no-store',headers:{Accept:'application/json'}});
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  const data=await r.json();
+  const out=normalize(data);
+  if(!out.length) throw new Error('No valid channels in loura.json');
+  return out;
+}
+
+function renderFilters(){
+  const cats=['All',...Array.from(new Set(channels.map(c=>c.category).filter(c=>c && c!=='General'))).sort()];
+  $('filters').innerHTML=cats.map(c=>'<button class="pill '+(c===activeCategory?'active':'')+'" data-cat="'+escapeHtml(c)+'">'+escapeHtml(c)+'</button>').join('');
+  $('filters').querySelectorAll('.pill').forEach(btn=>btn.addEventListener('click',()=>{activeCategory=btn.dataset.cat;renderFilters();render()}));
+}
+
+function render(){
+  const q=query.trim().toLowerCase();
+  const filtered=channels.filter(c=>(activeCategory==='All'||c.category===activeCategory)&&(!q||c.name.toLowerCase().includes(q)));
+  $('count').textContent=filtered.length+' channels';
+  $('no-results').style.display=filtered.length?'none':'block';
+  $('grid').style.display=filtered.length?'grid':'none';
+  $('grid').innerHTML=filtered.map(c=>'<article class="card" data-id="'+escapeHtml(c.id)+'"><div class="poster">'+(c.logo?'<img src="'+escapeHtml(c.logo)+'" alt="'+escapeHtml(c.name)+'" loading="lazy">':'')+'</div><div class="info"><div class="name">'+escapeHtml(c.name)+'</div>'+(c.category&&c.category!=='General'?'<div class="cat">'+escapeHtml(c.category)+'</div>':'')+'</div></article>').join('');
+  $('grid').querySelectorAll('.card').forEach(card=>card.addEventListener('click',()=>{const ch=channels.find(c=>c.id===card.dataset.id);if(ch)openPlayer(ch)}));
+}
+
+function openPlayer(ch){
+  const url=new URL(location.href);
+  url.searchParams.set('id',ch.id);
+  history.pushState({id:ch.id},'',url);
+  $('playerTitle').textContent=ch.name;
+  $('frame').src=ch.iframeSrc;
+  $('channel-list').style.display='none';
+  $('player').style.display='block';
+  document.title='CRICKCAST · '+ch.name;
+}
+function closePlayer(push=true){
+  $('frame').src='about:blank';
+  $('player').style.display='none';
+  $('channel-list').style.display='flex';
+  document.title='CRICKCAST';
+  if(push){history.pushState({},'',location.pathname)}
+}
+function route(){
+  const id=new URLSearchParams(location.search).get('id');
+  if(id){
+    const ch=channels.find(c=>c.id===id);
+    if(ch) openPlayer(ch); else closePlayer(false);
+  }else closePlayer(false);
+}
+
+$('search').addEventListener('input',e=>{query=e.target.value;$('clear').classList.toggle('show',!!query);render()});
+$('clear').addEventListener('click',()=>{$('search').value='';query='';$('clear').classList.remove('show');render();$('search').focus()});
+$('search').addEventListener('keydown',e=>{if(e.key==='Escape')$('clear').click()});
+$('back').addEventListener('click',()=>closePlayer(true));
+window.addEventListener('popstate',route);
+
+(async function(){
+  try{
+    channels=await loadData();
+    renderFilters();render();
+    $('overlay').style.display='none';
+    $('channel-list').style.display='flex';
+    route();
+  }catch(e){
+    $('loadMsg').innerHTML='<div class="err"><b>Unable to load channels</b>'+escapeHtml(e.message)+'</div>';
+  }
+})();
+})();
+</script>
+</body>
+</html>
