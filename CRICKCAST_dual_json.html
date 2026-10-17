@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>CRICKCAST</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Manrope:wght@400;500;600;700;800&display=swap">
+
+<!-- Your existing Adsterra script -->
+<script src="https://pl31467926.profitableratecpmnetwork.com/4e/25/e4/4e25e45556a54a50d1c66d2d232b2c61.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;background:#070b09;overflow:hidden;font-family:'Manrope',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+:root{--a:#10b981;--a2:#34d399;--bg:#070b09;--panel:#0e1512;--panel2:#121b16;--border:#1b2621;--text:#e8efeb;--muted:#7f8f86;--live:#ff5252}
+#overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;background:radial-gradient(120% 90% at 50% 8%,rgba(16,185,129,.14),transparent 60%),linear-gradient(180deg,#070b09,#050806 40%,#070b09)}
+.loader{width:52px;height:52px;border:3px solid rgba(255,255,255,.06);border-top-color:var(--a);border-right-color:var(--a2);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loadMsg{color:var(--muted);font-size:13px;font-weight:600;letter-spacing:.5px;text-align:center;padding:0 20px}
+#channel-list{position:fixed;inset:0;z-index:2;display:none;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 0 max(40px,env(safe-area-inset-bottom));background:var(--bg)}
+.header{display:flex;align-items:center;gap:14px;padding:max(20px,env(safe-area-inset-top)) clamp(16px,4vw,44px) 18px;border-bottom:1px solid var(--border)}
+.brand{font-family:'Archivo',sans-serif;font-weight:900;font-size:22px;letter-spacing:2.5px;color:#fff}.brand span{color:var(--a2)}
+.badge{font-size:10px;font-weight:800;letter-spacing:1px;color:#ff8080;border:1px solid rgba(255,82,82,.3);background:rgba(255,82,82,.08);padding:4px 9px;border-radius:99px}
+.count{margin-left:auto;color:var(--muted);font-size:11px;white-space:nowrap}
+#search-wrap{position:relative;margin:14px 16px 8px}
+#search{width:100%;padding:11px 40px;background:#111;border:1px solid #1a1a1a;border-radius:10px;color:#eee;outline:none}
+#search:focus{border-color:var(--a)}
+#search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#666}
+.clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:0;color:#aaa;display:none;cursor:pointer;padding:5px}
+.clear.show{display:block}
+#filters{display:flex;gap:8px;overflow-x:auto;padding:8px 16px 12px;border-bottom:1px solid rgba(255,255,255,.03);scrollbar-width:none}
+#filters::-webkit-scrollbar{display:none}
+.pill{flex:0 0 auto;padding:6px 14px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;cursor:pointer;background:#111;color:#888;border:1px solid #1a1a1a}
+.pill.active{background:linear-gradient(135deg,#10b981,#34d399);color:#04130d;border-color:transparent}
+#grid-wrap{flex:1;overflow:auto;padding-top:12px}
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;padding:0 clamp(16px,4vw,44px)}
+.card{position:relative;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--border);border-radius:16px;overflow:hidden;cursor:pointer;transition:.25s;box-shadow:0 2px 10px rgba(0,0,0,.25)}
+.card:hover{transform:translateY(-4px);border-color:rgba(52,211,153,.45);box-shadow:0 16px 36px rgba(0,0,0,.45)}
+.poster{position:relative;width:100%;aspect-ratio:16/9;background:#121b16;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.poster img{width:100%;height:100%;object-fit:cover;transition:transform .45s}
+.card:hover .poster img{transform:scale(1.06)}
+.poster::after{content:'▶';position:absolute;inset:0;display:grid;place-items:center;font-size:28px;color:var(--a2);background:linear-gradient(180deg,transparent,rgba(0,0,0,.5));pointer-events:none}
+.poster-placeholder{color:#34d399;font-size:34px;font-weight:800}
+.info{padding:12px 13px 14px}
+.name{color:var(--text);font-size:13px;font-weight:700;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cat{color:var(--muted);font-size:9px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;margin-top:7px}
+#no-results{display:none;color:#777;text-align:center;padding:60px 20px;font-size:14px;grid-column:1/-1}
+#player{position:fixed;inset:0;z-index:5;display:none;background:#000}
+#frame{width:100%;height:100%;border:0;background:#000}
+.playerbar{position:fixed;z-index:10;top:max(10px,env(safe-area-inset-top));left:12px;right:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;pointer-events:none}
+.playerbar button{pointer-events:auto;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.68);backdrop-filter:blur(8px);color:#fff;border-radius:9px;padding:9px 12px;cursor:pointer}
+.player-title{max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#fff;font-size:12px;background:rgba(0,0,0,.68);padding:9px 12px;border-radius:9px}
+.err{max-width:520px;text-align:center;color:#9ca3af;line-height:1.7}.err b{display:block;color:#f87171;margin-bottom:8px}
+.retry{margin-top:14px;border:0;border-radius:9px;padding:10px 18px;background:linear-gradient(135deg,#10b981,#34d399);color:#04130d;font-weight:800;cursor:pointer}
+@media(max-width:520px){#grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.info{padding:9px}.name{font-size:11px}.brand{font-size:19px}.header{gap:9px}}
+@media(min-width:768px){#grid{grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:18px}}
+</style>
+</head>
+<body>
+<div id="overlay"><div class="loader"></div><div id="loadMsg">Fetching CRICKCAST channels…</div></div>
+
+<section id="channel-list">
+  <div class="header"><div class="brand">CRICK<span>CAST</span></div><span class="badge">LIVE</span><span class="count" id="count">0 channels</span></div>
+  <div id="search-wrap"><span id="search-icon">🔍</span><input id="search" type="search" placeholder="Search channels…" autocomplete="off"><button class="clear" id="clear" aria-label="Clear search">✕</button></div>
+  <div id="filters"></div>
+  <div id="grid-wrap"><div id="grid"></div><div id="no-results">📺<br><br>No channels found.</div></div>
+</section>
+
+<section id="player">
+  <div class="playerbar"><button id="back" type="button">← Channels</button><div class="player-title" id="playerTitle"></div></div>
+  <iframe id="frame" title="CRICKCAST stream player" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen referrerpolicy="no-referrer"></iframe>
+</section>
+
+<script>
+(function(){
+'use strict';
+
+/* Both JSON feeds are fetched and their channel entries are combined. */
+const JSON_URLS = [
+  'https://sonujson-v5.pages.dev/loura.json',
+  'https://sportlink-tv10.pages.dev/id.json'
+];
+const FETCH_TIMEOUT = 10000;
+const $ = id => document.getElementById(id);
+let channels = [], activeCategory = 'All', query = '', currentId = null;
+
+function escapeHtml(value){
+  return String(value).replace(/[&<>"']/g, s => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[s]));
+}
+
+/* Accepts an array or common JSON wrappers used by channel feeds. */
+function normalize(data){
+  if(Array.isArray(data)) return data;
+  if(!data || typeof data !== 'object') return [];
+  if(Array.isArray(data.iframes)) return data.iframes;
+  if(Array.isArray(data.channels)) return data.channels;
+  if(Array.isArray(data.data)) return data.data;
+  return [data];
+}
+
+async function fetchWithTimeout(url, ms){
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  try{
+    const response = await fetch(url, {
+      cache: 'no-store',
+      headers: {Accept:'application/json'},
+      signal: controller.signal
+    });
+    if(!response.ok) throw new Error('HTTP ' + response.status);
+    return await response.json();
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function normalizeChannel(item){
+  if(!item || item.id === undefined || item.id === null || !item.name || !item.iframeSrc) return null;
+  return {
+    id: String(item.id),
+    name: String(item.name),
+    iframeSrc: String(item.iframeSrc),
+    category: String(item.category || 'General'),
+    logo: String(item.logourl || item.logo || item.logoUrl || '')
+  };
+}
+
+async function loadData(){
+  const results = await Promise.allSettled(JSON_URLS.map(url => fetchWithTimeout(url, FETCH_TIMEOUT)));
+  const combined = [];
+  const errors = [];
+
+  results.forEach((result, index) => {
+    if(result.status === 'fulfilled'){
+      combined.push(...normalize(result.value));
+    }else{
+      const reason = result.reason;
+      errors.push(JSON_URLS[index] + ': ' + (reason && reason.name === 'AbortError'
+        ? 'timed out after ' + (FETCH_TIMEOUT / 1000) + ' seconds'
+        : (reason && reason.message ? reason.message : 'request failed')));
+    }
+  });
+
+  /* Deduplicate by ID; the first feed's entry wins if IDs overlap. */
+  const seen = new Set();
+  const valid = [];
+  combined.forEach(item => {
+    const channel = normalizeChannel(item);
+    if(!channel || seen.has(channel.id)) return;
+    seen.add(channel.id);
+    valid.push(channel);
+  });
+
+  if(!valid.length){
+    throw new Error('Could not load valid channels from either JSON feed. ' + errors.join(' | '));
+  }
+  return valid;
+}
+
+function renderFilters(){
+  const categories = ['All', ...Array.from(new Set(
+    channels.map(c => c.category).filter(c => c && c !== 'General')
+  )).sort()];
+  $('filters').innerHTML = categories.map(category =>
+    '<button type="button" class="pill '+(category === activeCategory ? 'active' : '')+
+    '" data-cat="'+escapeHtml(category)+'">'+escapeHtml(category)+'</button>'
+  ).join('');
+  $('filters').querySelectorAll('.pill').forEach(button => {
+    button.addEventListener('click', () => {
+      activeCategory = button.dataset.cat;
+      renderFilters();
+      render();
+    });
+  });
+}
+
+function render(){
+  const term = query.trim().toLowerCase();
+  const filtered = channels.filter(channel =>
+    (activeCategory === 'All' || channel.category === activeCategory) &&
+    (!term || channel.name.toLowerCase().includes(term) || channel.category.toLowerCase().includes(term))
+  );
+
+  $('count').textContent = filtered.length + (filtered.length === 1 ? ' channel' : ' channels');
+  $('no-results').style.display = filtered.length ? 'none' : 'block';
+  $('grid').style.display = filtered.length ? 'grid' : 'none';
+
+  $('grid').innerHTML = filtered.map(channel =>
+    '<article class="card" data-id="'+escapeHtml(channel.id)+'">'+
+      '<div class="poster">'+
+        (channel.logo
+          ? '<img src="'+escapeHtml(channel.logo)+'" alt="'+escapeHtml(channel.name)+'" loading="lazy" onerror="this.style.display=\'none\'">'
+          : '<span class="poster-placeholder">CC</span>')+
+      '</div>'+
+      '<div class="info"><div class="name">'+escapeHtml(channel.name)+'</div>'+
+      (channel.category !== 'General' ? '<div class="cat">'+escapeHtml(channel.category)+'</div>' : '')+
+      '</div></article>'
+  ).join('');
+
+  $('grid').querySelectorAll('.card').forEach(card => {
+    card.addEventListener('click', () => {
+      const channel = channels.find(c => c.id === card.dataset.id);
+      if(channel) openPlayer(channel, true);
+    });
+  });
+}
+
+function openPlayer(channel, updateHistory){
+  /* Permit only web URLs before assigning externally supplied player URLs. */
+  let safeUrl;
+  try{
+    safeUrl = new URL(channel.iframeSrc, location.href);
+    if(!['http:', 'https:'].includes(safeUrl.protocol)) throw new Error('Unsupported stream URL');
+  }catch(error){
+    showMessage('This channel has an invalid player URL.');
+    return;
+  }
+
+  currentId = channel.id;
+  if(updateHistory){
+    const url = new URL(location.href);
+    url.searchParams.set('id', channel.id);
+    history.pushState({id:channel.id}, '', url);
+  }
+  $('playerTitle').textContent = channel.name;
+  $('frame').src = safeUrl.href;
+  $('channel-list').style.display = 'none';
+  $('player').style.display = 'block';
+  document.title = 'CRICKCAST · ' + channel.name;
+}
+
+function closePlayer(updateHistory){
+  currentId = null;
+  $('frame').src = 'about:blank';
+  $('player').style.display = 'none';
+  $('channel-list').style.display = 'flex';
+  document.title = 'CRICKCAST';
+  if(updateHistory){
+    const url = new URL(location.href);
+    url.searchParams.delete('id');
+    history.pushState({}, '', url);
+  }
+}
+
+function route(){
+  const id = new URLSearchParams(location.search).get('id');
+  if(id){
+    const channel = channels.find(c => c.id === id);
+    if(channel) openPlayer(channel, false);
+    else closePlayer(false);
+  }else{
+    closePlayer(false);
+  }
+}
+
+function showMessage(message){
+  $('overlay').style.display = 'flex';
+  $('loadMsg').innerHTML = '<div class="err"><b>Unable to open channel</b>'+escapeHtml(message)+
+    '<br><button class="retry" id="messageBack" type="button">Back to channels</button></div>';
+  $('messageBack').addEventListener('click', () => {
+    $('overlay').style.display = 'none';
+    closePlayer(false);
+  });
+}
+
+$('search').addEventListener('input', event => {
+  query = event.target.value;
+  $('clear').classList.toggle('show', !!query);
+  render();
+});
+$('clear').addEventListener('click', () => {
+  $('search').value = '';
+  query = '';
+  $('clear').classList.remove('show');
+  render();
+  $('search').focus();
+});
+$('search').addEventListener('keydown', event => {
+  if(event.key === 'Escape') $('clear').click();
+});
+$('back').addEventListener('click', () => closePlayer(true));
+window.addEventListener('popstate', route);
+
+(async function(){
+  try{
+    channels = await loadData();
+    renderFilters();
+    render();
+    $('overlay').style.display = 'none';
+    $('channel-list').style.display = 'flex';
+    route();
+  }catch(error){
+    $('loadMsg').innerHTML =
+      '<div class="err"><b>Unable to load channels</b>'+
+      escapeHtml(error && error.message ? error.message : 'Unknown error')+
+      '<br><button class="retry" id="retryLoad" type="button">Retry</button></div>';
+    $('retryLoad').addEventListener('click', () => {
+      $('loadMsg').textContent = 'Fetching CRICKCAST channels…';
+      $('loadMsg').innerHTML = '<div class="loader"></div><div>Fetching CRICKCAST channels…</div>';
+      location.reload();
+    });
+  }
+})();
+})();
+</script>
+
+<!-- Your existing second Adsterra script -->
+<script src="https://pl31467927.profitableratecpmnetwork.com/f5/ea/dd/f5eadd2d3e0fe1f26f2b1d6c0b7f9167.js"></script>
+</body>
+</html>
